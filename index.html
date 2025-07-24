@@ -1,13 +1,542 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leipziger Mietspiegel Rechner 2025-2027</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leipziger Mietspiegel Rechner 2025-2027 - Vollständig</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            color: #374151;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .calculate-btn:hover {
+            background: #2563eb;
+        }
+        
+        .result {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+        
+        .result h2 {
+            color: #166534;
+            margin-bottom: 16px;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .result-item {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .result-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .result-primary .result-value {
+            color: #3b82f6;
+            font-size: 2rem;
+        }
+        
+        .result-lower .result-value {
+            color: #dc2626;
+        }
+        
+        .result-upper .result-value {
+            color: #16a34a;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .note {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 16px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .mehrfamilienhaus-only {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .mehrfamilienhaus-only.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Leipziger Mietspiegel Rechner</h1>
+            <p>2025 - 2027 (Vollständige Version)</p>
+            <p style="font-size: 0.9rem; margin-top: 8px;">Berechnung der ortsüblichen Vergleichsmiete nach dem Leipziger Mietspiegel</p>
+        </div>
+
+        <form id="mietspiegelForm">
+            <!-- Grunddaten -->
+            <div class="card">
+                <h2>🏠 Grunddaten der Wohnung</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="wohnflaeche">Wohnfläche (m²) *</label>
+                        <input type="number" id="wohnflaeche" min="20" max="200" placeholder="z.B. 75" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="haustyp">Haustyp *</label>
+                        <select id="haustyp" required>
+                            <option value="mehrfamilienhaus">Mehrfamilienhaus</option>
+                            <option value="einfamilienhaus">Ein-/Zweifamilienhaus</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Baujahr -->
+            <div class="card">
+                <h2>🏗️ Baujahr der Wohnung</h2>
+                <div class="form-group">
+                    <label for="baujahr">Baujahr *</label>
+                    <select id="baujahr" required>
+                        <option value="">Wählen Sie das Baujahr</option>
+                        <option value="vor_1919">vor 1919</option>
+                        <option value="1919_1945">1919 bis 1945</option>
+                        <option value="1946_1960">1946 bis 1960</option>
+                        <option value="1961_1991">1961 bis 1991</option>
+                        <option value="1992_2004">1992 bis 2004</option>
+                        <option value="2005_2014">2005 bis 2014</option>
+                        <option value="ab_2015">ab 2015</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Erneuerung -->
+            <div class="card">
+                <h2>🔧 Erneuerung und Art der Wohnung</h2>
+                <div class="description">
+                    Berücksichtigt werden nur Erneuerungen von Badausstattung, Bodenbelägen, Innentüren, Wohnungseingangstür und Heizkörpern.
+                </div>
+                <div class="form-group">
+                    <label for="erneuerung">Erneuerung der Wohnung</label>
+                    <select id="erneuerung">
+                        <option value="keine">Keine Erneuerung</option>
+                        <option value="komplett_5">Komplett in den vergangenen 5 Jahren erneuert</option>
+                        <option value="ueberwiegend_5">Überwiegend in den vergangenen 5 Jahren erneuert</option>
+                        <option value="ueberwiegend_15">Überwiegend in den vergangenen 15 Jahren erneuert</option>
+                        <option value="ueberwiegend_25">Überwiegend in den vergangenen 25 Jahren erneuert</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="moebliert">
+                        <label for="moebliert">Möblierte/teilmöblierte Wohnung</label>
+                    </div>
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="erdgeschoss">
+                        <label for="erdgeschoss">Wohnung im Erdgeschoss</label>
+                    </div>
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="hinterhaus">
+                        <label for="hinterhaus">Wohnung im Hinterhaus/Nebengebäude</label>
+                    </div>
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="mehrAls5Geschosse">
+                        <label for="mehrAls5Geschosse">Gebäude mit mehr als 5 Geschossen</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heizung, Warmwasser, Leitungen -->
+            <div class="card">
+                <h2>🔥 Heizung, Warmwasser und Leitungen</h2>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="fussbodenheizungWohnraeume">
+                        <label for="fussbodenheizungWohnraeume">Fußbodenheizung in Wohnräumen (mind. Hälfte)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="fussbodenheizungKuecheBad">
+                        <label for="fussbodenheizungKuecheBad">Fußbodenheizung nur in Küche/Bad</label>
+                    </div>
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="keineZentralheizung">
+                        <label for="keineZentralheizung">Keine Zentralheizung vorhanden</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="keineZentraleWarmwasser">
+                        <label for="keineZentraleWarmwasser">Keine zentrale Warmwasseraufbereitung</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="leitungenUeberPutz">
+                        <label for="leitungenUeberPutz">Leitungen mindestens teilweise über Putz</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Küche -->
+            <div class="card">
+                <h2>🍳 Küche</h2>
+                <div class="checkbox-group">
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="offeneKueche">
+                        <label for="offeneKueche">Offene, "amerikanische" Küche</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="einbaukueche">Einbauküche (vom Vermieter gestellt)</label>
+                    <select id="einbaukueche">
+                        <option value="keine">Keine Einbauküche</option>
+                        <option value="letzten_5">Einbau in den letzten 5 Jahren</option>
+                        <option value="aelter_5">Älter als 5 Jahre</option>
+                        <option value="aelter_15">Älter als 15 Jahre</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Badezimmer -->
+            <div class="card">
+                <h2>🛁 Badezimmer</h2>
+                <div class="form-group">
+                    <label for="badezimmerTyp">Badezimmer-Ausstattung</label>
+                    <select id="badezimmerTyp">
+                        <option value="ein_bad_wanne_oder_dusche">Ein Badezimmer mit Wanne oder Dusche</option>
+                        <option value="ein_bad_wanne_und_dusche">Ein Badezimmer mit Wanne und Dusche</option>
+                        <option value="mehrere_baeder">Mehrere Badezimmer</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="keinFensterBad">
+                        <label for="keinFensterBad">Kein Fenster im Badezimmer</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="bodengleicheDusche">
+                        <label for="bodengleicheDusche">Bodengleiche/ebenerdige Dusche</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="handtuchwandheizkoerper">
+                        <label for="handtuchwandheizkoerper">Handtuchwandheizkörper</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="doppelwaschbecken">
+                        <label for="doppelwaschbecken">Doppelwaschbecken</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="bidet">
+                        <label for="bidet">Bidet</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="unverkleideterSpuelkasten">
+                        <label for="unverkleideterSpuelkasten">Unverkleideter Spülkasten</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ungefliesterNassbereich">
+                        <label for="ungefliesterNassbereich">Ungefliester Nassbereich</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="mehrereToiletten">
+                        <label for="mehrereToiletten">Mehr als eine Toilette (Gäste-WC)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fußboden -->
+            <div class="card">
+                <h2>🎨 Fußboden</h2>
+                <div class="description">
+                    Überwiegender Bodenbelag in den Wohnräumen (außer Flur, Küche, Bad)
+                </div>
+                <div class="form-group">
+                    <label for="fussboden">Bodenbelag</label>
+                    <select id="fussboden">
+                        <option value="kein_belag">Kein vom Vermieter gestellter Belag</option>
+                        <option value="pvc_teppich">PVC-Belag, Teppich</option>
+                        <option value="naturstein_fliesen_dielen">Naturstein, Fliesen, Dielen</option>
+                        <option value="laminat">Laminat</option>
+                        <option value="linoleum_vinyl_kork">Linoleum, Vinylbelag, Kork</option>
+                        <option value="parkett">Parkett</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Fenster -->
+            <div class="card">
+                <h2>🪟 Fenster</h2>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="dreifachverglasung">
+                        <label for="dreifachverglasung">Überwiegend Dreifachverglasung</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="rolllaeden">
+                        <label for="rolllaeden">Rollläden/Jalousien vorhanden</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="elektrischeRolllaeden">
+                        <label for="elektrischeRolllaeden">Elektrisch bedienbare Rollläden/Jalousien</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weitere Ausstattung -->
+            <div class="card">
+                <h2>➕ Weitere Ausstattung</h2>
+                <div class="form-group">
+                    <label for="balkonGroesse">Balkon/Loggia/Wintergarten (größte Fläche)</label>
+                    <select id="balkonGroesse">
+                        <option value="kein">Kein Balkon/Loggia/Wintergarten</option>
+                        <option value="1_3">1 m² bis 3 m²</option>
+                        <option value="3_8">größer als 3 m² bis 8 m²</option>
+                        <option value="groesser_8">größer als 8 m²</option>
+                    </select>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="terrasse">
+                        <label for="terrasse">Terrasse oder Dachterrasse</label>
+                    </div>
+                    <div class="checkbox-item mehrfamilienhaus-only">
+                        <input type="checkbox" id="pkwStellplatz">
+                        <label for="pkwStellplatz">Pkw-Stellplatz (in Grundmiete enthalten)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="aufzug">
+                        <label for="aufzug">Aufzug</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="deckenspots">
+                        <label for="deckenspots">Deckenspots/indirekte Beleuchtung</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="abstellkammer">
+                        <label for="abstellkammer">Abstellkammer in der Wohnung</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="feuerhemmendeTuer">
+                        <label for="feuerhemmendeTuer">Feuerhemmende Wohnungstür</label>
+                    </div>
+                </div>
+                
+                <div class="form-group mehrfamilienhaus-only">
+                    <label for="sprechanlage">Gegen-/Wechselsprechanlage</label>
+                    <select id="sprechanlage">
+                        <option value="nicht_vorhanden">Nicht vorhanden</option>
+                        <option value="ohne_video">Ja, ohne Video</option>
+                        <option value="mit_video">Ja, mit Video</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Lage -->
+            <div class="card">
+                <h2>📍 Wohnlage</h2>
+                <div class="description">
+                    Die Lagekategorie können Sie über das Bürgertelefon der Stadt Leipzig (0341 115) erfragen oder auf www.leipzig.de/mietspiegel nachschlagen.
+                </div>
+                <div class="form-group">
+                    <label for="lage">Wohnlage *</label>
+                    <select id="lage" required>
+                        <option value="">Wählen Sie die Wohnlage</option>
+                        <option value="innenstadt_einfach">Innerhalb der Innenstadt - einfach</option>
+                        <option value="innenstadt_mittel">Innerhalb der Innenstadt - mittel</option>
+                        <option value="innenstadt_gut">Innerhalb der Innenstadt - gut</option>
+                        <option value="innenstadt_sehr_gut">Innerhalb der Innenstadt - sehr gut</option>
+                        <option value="kerngebiet">Kerngebietslage</option>
+                        <option value="ausserhalb_einfach">Außerhalb der Innenstadt - einfach</option>
+                        <option value="ausserhalb_mittel">Außerhalb der Innenstadt - mittel</option>
+                        <option value="ausserhalb_gut">Außerhalb der Innenstadt - gut</option>
+                        <option value="ausserhalb_sehr_gut">Außerhalb der Innenstadt - sehr gut</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Berechnung -->
+            <div class="card">
+                <button type="submit" class="calculate-btn">
+                    🧮 Ortsübliche Vergleichsmiete berechnen
+                </button>
+            </div>
+        </form>
+
+        <!-- Ergebnis -->
+        <div id="result" class="result hidden">
+            <h2>✅ Berechnungsergebnis</h2>
+            <p style="color: #166534; margin-bottom: 16px;">Ortsübliche Vergleichsmiete nach Leipziger Mietspiegel 2025-2027</p>
+            
+            <div class="result-grid">
+                <div class="result-item result-lower">
+                    <div class="result-value" id="untererWert">-</div>
+                    <div class="result-label">Unterer Spannwert</div>
+                </div>
+                <div class="result-item result-primary">
+                    <div class="result-value" id="mittelwert">-</div>
+                    <div class="result-label">Mittelwert (empfohlen)</div>
+                </div>
+                <div class="result-item result-upper">
+                    <div class="result-value" id="obererWert">-</div>
+                    <div class="result-label">Oberer Spannwert</div>
+                </div>
+            </div>
+            
+            <div class="form-grid" style="font-size: 0.9rem;">
+                <div>
+                    <strong>Grundbetrag:</strong> <span id="grundbetrag">-</span> €/m²
+                </div>
+                <div>
+                    <strong>Gesamtfaktor:</strong> <span id="gesamtfaktor">-</span>
+                </div>
+            </div>
+            
+            <div class="note">
+                <strong>Hinweis:</strong> Als anfänglicher Ausgangswert für die Miethöhe wird sich zunächst regelmäßig der Mittelwert der Miete empfehlen. Bei besonderen wohnwerterhöhenden oder wohnwertmindernden Merkmalen kann vom Mittelwert innerhalb des Spannbereiches abgewichen werden.
+            </div>
+        </div>
+    </div>
+
+    <script src="mietspiegel-rechner.js"></script>
+</body>
 </html>
+
